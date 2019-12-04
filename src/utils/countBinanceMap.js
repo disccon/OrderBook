@@ -5,6 +5,6 @@ export const countBinanceMap = arr => {
     const amount = parseFloat(item[1])
     const total = price * amount
     sum += total
-    return [price.toFixed(2), amount.toFixed(7), total.toFixed(7), sum.toFixed(7)]
+    return [price.toFixed(2), amount.toFixed(6), total.toFixed(8), sum.toFixed(8)]
   })
 }
