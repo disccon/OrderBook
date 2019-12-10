@@ -9,21 +9,15 @@ import { createWebSocketConnection } from '../../utils/createWebSocketConnection
 import { createSocketChannel } from '../../utils/createSocketChannel'
 
 // websocketChannel
-let socket
-let socketChannel
+let socket: any
+let socketChannel: any
 
 
 // saga worker
-export function* fetchOrderSaga(action) {
+export function* fetchOrderSaga() {
   try {
-    const selects = yield select(state => state.orderReducer.selects)
-    let { depth, currencies, interval } = selects
-    if (action.payload) {
-      const { input, value } = action.payload
-      if (input === 'depth') depth = Number(value)
-      else if (input === 'currencies') currencies = value
-      else if (input === 'interval') interval = value
-    }
+    const selectsState = yield select(state => state.orderReducer.selects)
+    let { depth, currencies, interval } = selectsState
     const url = `wss://stream.binance.com:9443/ws/${currencies}@depth${depth}@${interval}`
     socket = yield call(createWebSocketConnection, { url })
     socketChannel = yield call(createSocketChannel, socket)
@@ -35,9 +29,6 @@ export function* fetchOrderSaga(action) {
         payload: {
           bids: countBinanceMap(bids),
           asks: countBinanceMap(asks),
-          selects: {
-            depth, currencies, interval,
-          },
           isLoading: false,
         },
       })
@@ -56,17 +47,25 @@ export function* fetchOrderSaga(action) {
   }
 }
 
-export function* changeOrderBinanceSaga(action) {
+export function* changeOrderBinanceSaga(action: any) {
   try {
     socketChannel.close()
     socket.close()
+    const selectsState = yield select(state => state.orderReducer.selects)
+    let { depth, currencies, interval } = selectsState
+    const { input, value } = action.payload
+    if (input === 'depth') depth = Number(value)
+    else if (input === 'currencies') currencies = value
+    else if (input === 'interval') interval = value
+    const selects = { depth, currencies, interval }
     yield put({
       type: ActionTypes.CHANGE_ORDER_BINANCE__LOADING,
       payload: {
+        selects,
         isLoading: true,
       },
     })
-    yield fork(fetchOrderSaga, action)
+    yield fork(fetchOrderSaga)
   } catch (error) {
     yield put({
       type: ActionTypes.CHANGE_ORDER_BINANCE__FAILURE,

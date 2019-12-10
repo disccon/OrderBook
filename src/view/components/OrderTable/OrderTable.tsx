@@ -1,5 +1,4 @@
 import React from 'react'
-import { string, array } from 'prop-types'
 // material
 import { makeStyles, withStyles } from '@material-ui/core/styles'
 import {
@@ -7,6 +6,7 @@ import {
 } from '@material-ui/core'
 // components
 import OrderRow from './OrderRow/OrderRow'
+
 
 const StyledTableCell = withStyles(() => ({
   head: {
@@ -38,7 +38,15 @@ const useStyles = makeStyles({
 })
 
 
-const OrderTable = ({ title, orderArr }) => {
+interface ComponentProps {
+  title: string
+  orderArr: any
+}
+
+type AllProps = ComponentProps
+
+
+const OrderTable: React.FC<AllProps>  = ({ title, orderArr }) => {
   const classes = useStyles()
   return (
     <>
@@ -56,7 +64,7 @@ const OrderTable = ({ title, orderArr }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {orderArr.length && orderArr.map((item, key) => (
+            {orderArr.length && orderArr.map((item: any, key: number) => (
               <OrderRow
                 key={key + 1}
                 rowArr={item}
@@ -69,10 +77,5 @@ const OrderTable = ({ title, orderArr }) => {
   )
 }
 
-
-OrderTable.propTypes = {
-  title: string.isRequired,
-  orderArr: array.isRequired,
-}
 
 export default OrderTable

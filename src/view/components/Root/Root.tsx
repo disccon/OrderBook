@@ -1,7 +1,6 @@
 import React from 'react'
-import { object } from 'prop-types'
 // router
-import { Route, Switch, Redirect } from 'react-router'
+import { Route, Switch, Redirect, RouteComponentProps } from 'react-router-dom'
 import { ConnectedRouter } from 'connected-react-router'
 // scss
 import '../../../assets/fonts/fonts.scss'
@@ -15,21 +14,23 @@ import OrderTablePage from '../../pages/OrderTablePage/OrderTablePage'
 import NotFoundPage from '../../pages/NotFoundPage/NotFoundPage'
 
 
-const Root = ({ history }) => (
+interface ComponentProps {
+  history: any
+}
+
+type AllProps = ComponentProps & RouteComponentProps
+
+const Root: React.FC<AllProps> = ({history}) => (
   <ConnectedRouter history={history}>
-    <GlobalStyle />
-    <Header />
+    <GlobalStyle/>
+    <Header/>
     <Switch>
-      <Route path='/not-found' component={NotFoundPage} />
-      <Route exact path='/' component={OrderTablePage} />
-      <Redirect to='/not-found' />
+      <Route path='/not-found' component={NotFoundPage}/>
+      <Route exact path='/' component={OrderTablePage}/>
+      <Redirect to='/not-found'/>
     </Switch>
   </ConnectedRouter>
 )
 
-
-Root.propTypes = {
-  history: object.isRequired,
-}
 
 export default Root

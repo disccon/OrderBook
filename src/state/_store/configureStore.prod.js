@@ -6,7 +6,7 @@ import createSagaMiddleware from 'redux-saga'
 import { routerMiddleware } from 'connected-react-router'
 // redux components
 import rootSaga from '../rootSaga'
-import rootReducer from '../reducers'
+import { rootReducer } from '../reducers'
 
 
 const history = createBrowserHistory()

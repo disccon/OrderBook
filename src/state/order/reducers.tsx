@@ -1,26 +1,16 @@
 import * as ActionTypes from './actions'
+import { initialOrderState } from './initialState'
 
-export const initialCharacters = {
-  isLoading: null,
-  selects: {
-    depth: 10,
-    currencies: 'btcusdt',
-    interval: '1000ms',
-  },
-  bids: [],
-  asks: [],
-}
 
 
 // reducer
-export default function orderReducer(state = initialCharacters, action) {
+export default function orderReducer(state = initialOrderState, action: any) {
   switch (action.type) {
     case ActionTypes.FETCH_ORDER__SUCCESS: {
       return ({
         ...state,
         bids: action.payload.bids,
         asks: action.payload.asks,
-        selects: action.payload.selects,
         isLoading: action.payload.isLoading,
         error: undefined,
       })
@@ -35,6 +25,7 @@ export default function orderReducer(state = initialCharacters, action) {
     case ActionTypes.CHANGE_ORDER_BINANCE__LOADING: {
       return {
         ...state,
+        selects: action.payload.selects,
         isLoading: action.payload.isLoading,
         error: undefined,
       }
@@ -48,7 +39,7 @@ export default function orderReducer(state = initialCharacters, action) {
 
     case ActionTypes.CLEAR_ORDER__SUCCESS: {
       return {
-        ...initialCharacters,
+        ...initialOrderState,
         error: undefined,
       }
     }

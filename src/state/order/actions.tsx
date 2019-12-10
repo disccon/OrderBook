@@ -22,7 +22,7 @@ export const CHANGE_ORDER_BINANCE = 'CHANGE_ORDER_BINANCE'
 export const CHANGE_ORDER_BINANCE__LOADING = 'CHANGE_ORDER_BINANCE__LOADING'
 export const CHANGE_ORDER_BINANCE__FAILURE = 'CHANGE_ORDER_BINANCE__FAILURE'
 
-export const changeOrderBinance = (input, value) => (
+export const changeOrderBinance = (input: string, value: string | number) => (
   {
     type: CHANGE_ORDER_BINANCE,
     payload: {

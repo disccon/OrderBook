@@ -1,18 +1,28 @@
 import React, { Component } from 'react'
-import {
-  oneOfType, bool, oneOf, func,
-} from 'prop-types'
 import { connect } from 'react-redux'
+// components
 import OrderBookTitle from '../../components/OrderBookTitle/OrderBookTitle'
 import Loader from '../../components/Loader/Loader'
 import OrderBookWrapper from '../../components/OrderBookWrapper/OrderBookWrapper'
 // actions
 import { actions } from '../../../state'
+import { AppState } from "../../../state/reducers";
 
 const { fetchOrder, clearOrder } = actions
 
+interface PropsFromState {
+  isLoading: null | null
+}
 
-class OrderTablePage extends Component {
+interface PropsFromDispatch {
+  fetchOrder: typeof fetchOrder
+  clearOrder: typeof clearOrder
+}
+
+type AllProps = PropsFromState & PropsFromDispatch
+
+
+class OrderTablePage extends Component<AllProps> {
   componentDidMount() {
     this.fetchOrderTable()
   }
@@ -40,17 +50,8 @@ class OrderTablePage extends Component {
 }
 
 
-OrderTablePage.propTypes = {
-  isLoading: oneOfType([
-    bool,
-    oneOf([null]).isRequired,
-  ]),
-  fetchOrder: func,
-  clearOrder: func,
-}
-
-const mapStateToProps = state => {
-  const { isLoading } = state.orderReducer
+const mapStateToProps = ({ orderReducer}: AppState) => {
+  const { isLoading } = orderReducer
   return {
     isLoading,
   }

@@ -1,105 +1,34 @@
 import React from 'react'
-import { func, number, string } from 'prop-types'
 import { connect } from 'react-redux'
-// material
-import { makeStyles } from '@material-ui/core/styles'
 import { TextField, Typography } from '@material-ui/core'
-// styled
-import styled from 'styled-components'
 // actions
 import { actions } from '../../../state'
-
+// untils
+import { AppState } from '../../../state/reducers'
+import { depthArr, useStylesOrderBookTitle, OrderBookWrapper, currenciesArr, intervalArr } from './orderBookTitleUntils'
 const { changeOrderBinance } = actions
 
+interface PropsFromState {
+  depth: number
+  currencies: any,
+  interval: any,
+}
 
-const TextFieldWrapper = styled.div`
-  margin-top: 40px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-`
+interface PropsFromDispatch {
+  changeOrderBinance: typeof changeOrderBinance
+}
 
+type AllProps = PropsFromState & PropsFromDispatch
 
-const useStyles = makeStyles(theme => ({
-  native: true,
-  root: {
-    marginLeft: '100px',
-    padding: '20px',
-  },
-  container: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
-  textField: {
-    marginLeft: theme.spacing(1),
-    marginRight: '25px',
-    width: 120,
-  },
-  menu: {
-    width: 120,
-    paddingLeft: 20,
-    paddingRight: 20,
-  },
-  title: {
-    marginRight: 'auto',
-    fontWeight: 500,
-    fontSize: 34,
-    color: 'rgb(33, 40, 51)',
-    fontFamily: 'DINNext, IBMPlexSans, Arial, PingFangSC-Regular, "Microsoft YaHei", sans-serif !important',
-  },
-}))
-
-const currenciesArr = [
-  {
-    value: 'btcusdt',
-    label: 'BTC/USDT',
-  },
-  {
-    value: 'ethusdt',
-    label: 'ETH/USDT',
-  },
-  {
-    value: 'ltcusdt',
-    label: 'LTC/USDT',
-  },
-]
-
-const depthArr = [
-  {
-    value: 5,
-    label: 5,
-  },
-  {
-    value: 10,
-    label: 10,
-  },
-  {
-    value: 20,
-    label: 20,
-  },
-]
-
-const intervalArr = [
-  {
-    value: '100ms',
-    label: '100 ms',
-  },
-  {
-    value: '1000ms',
-    label: '1000 ms',
-  },
-]
-
-
-const OrderBookTitle = ({
-  depth, currencies, changeOrderBinance, interval,
-}) => {
-  const classes = useStyles()
-  const handleChangeOrder = input => ({ target }) => {
-    changeOrderBinance(input, target.value)
+const OrderBookTitle: React.FC<AllProps> = ({
+                                              depth, currencies, interval, changeOrderBinance
+                                            }) => {
+  const classes = useStylesOrderBookTitle()
+  const handleChangeOrder = (input: string) => (event: React.ChangeEvent<HTMLInputElement> ) => {
+    changeOrderBinance(input, event.target.value)
   }
   return (
-    <TextFieldWrapper>
+    <OrderBookWrapper>
       <Typography className={classes.title} variant='h2'>
         Order Book
       </Typography>
@@ -160,20 +89,13 @@ const OrderBookTitle = ({
           </option>
         ))}
       </TextField>
-    </TextFieldWrapper>
+    </OrderBookWrapper>
   )
 }
 
 
-OrderBookTitle.propTypes = {
-  depth: number.isRequired,
-  currencies: string.isRequired,
-  interval: string.isRequired,
-  changeOrderBinance: func.isRequired,
-}
-
-const mapStateToProps = state => {
-  const { depth, currencies, interval } = state.orderReducer.selects
+const mapStateToProps = ({orderReducer}: AppState) => {
+  const { depth, currencies, interval } = orderReducer.selects
   return {
     depth, currencies, interval,
   }
@@ -181,5 +103,7 @@ const mapStateToProps = state => {
 
 export default connect(
   mapStateToProps,
-  { changeOrderBinance },
+  {changeOrderBinance},
 )(OrderBookTitle)
+
+
