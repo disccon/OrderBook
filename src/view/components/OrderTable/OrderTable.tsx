@@ -40,7 +40,7 @@ const useStyles = makeStyles({
 
 interface ComponentProps {
   title: string
-  orderArr: any
+  orderArr: Array<Array<string>>,
 }
 
 type AllProps = ComponentProps
@@ -64,7 +64,7 @@ const OrderTable: React.FC<AllProps>  = ({ title, orderArr }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {orderArr.length && orderArr.map((item: any, key: number) => (
+            {orderArr.length && orderArr.map((item: Array<string>, key: number) => (
               <OrderRow
                 key={key + 1}
                 rowArr={item}

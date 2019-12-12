@@ -10,8 +10,8 @@ const { changeOrderBinance } = actions
 
 interface PropsFromState {
   depth: number
-  currencies: any,
-  interval: any,
+  currencies: string,
+  interval: string,
 }
 
 interface PropsFromDispatch {
@@ -24,7 +24,7 @@ const OrderBookTitle: React.FC<AllProps> = ({
                                               depth, currencies, interval, changeOrderBinance
                                             }) => {
   const classes = useStylesOrderBookTitle()
-  const handleChangeOrder = (input: string) => (event: React.ChangeEvent<HTMLInputElement> ) => {
+  const handleChangeOrder = (input: string) => (event: React.ChangeEvent<HTMLInputElement> ): void => {
     changeOrderBinance(input, event.target.value)
   }
   return (

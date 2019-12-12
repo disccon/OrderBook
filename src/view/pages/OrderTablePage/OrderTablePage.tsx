@@ -6,12 +6,12 @@ import Loader from '../../components/Loader/Loader'
 import OrderBookWrapper from '../../components/OrderBookWrapper/OrderBookWrapper'
 // actions
 import { actions } from '../../../state'
-import { AppState } from "../../../state/reducers";
+import { AppState } from '../../../state/reducers'
 
 const { fetchOrder, clearOrder } = actions
 
 interface PropsFromState {
-  isLoading: null | null
+  loading: null | boolean
 }
 
 interface PropsFromDispatch {
@@ -24,7 +24,7 @@ type AllProps = PropsFromState & PropsFromDispatch
 
 class OrderTablePage extends Component<AllProps> {
   componentDidMount() {
-    this.fetchOrderTable()
+    this.fetchOrderHandler()
   }
 
   componentWillUnmount() {
@@ -32,18 +32,18 @@ class OrderTablePage extends Component<AllProps> {
     clearOrder()
   }
 
-  fetchOrderTable = () => {
+  fetchOrderHandler = (): void => {
     const { fetchOrder } = this.props
     fetchOrder()
   }
 
   render() {
-    const { isLoading } = this.props
+    const { loading } = this.props
     return (
       <div className='container direction-column'>
         <OrderBookTitle />
-        {isLoading !== null && <OrderBookWrapper />}
-        {(isLoading || isLoading === null) && <Loader />}
+        {loading !== null && <OrderBookWrapper />}
+        {(loading || loading === null) && <Loader />}
       </div>
     )
   }
@@ -51,9 +51,9 @@ class OrderTablePage extends Component<AllProps> {
 
 
 const mapStateToProps = ({ orderReducer}: AppState) => {
-  const { isLoading } = orderReducer
+  const { loading } = orderReducer
   return {
-    isLoading,
+    loading,
   }
 }
 

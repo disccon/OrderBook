@@ -1,13 +1,13 @@
 import { combineReducers } from 'redux'
 import { History } from 'history'
 import { connectRouter, RouterState } from 'connected-react-router'
-import { reducers as orderReducer } from './order'
-import { OrderInterface } from './order/initialState'
+import { orderReducer } from './order'
+import { OrderState } from './order/initialState'
 
 
 export interface AppState {
   router: RouterState
-  orderReducer: OrderInterface
+  orderReducer: OrderState
 }
 
 export const rootReducer = (history: History) =>

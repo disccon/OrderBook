@@ -2,6 +2,7 @@ import React from 'react'
 // router
 import { Route, Switch, Redirect, RouteComponentProps } from 'react-router-dom'
 import { ConnectedRouter } from 'connected-react-router'
+import { History } from 'history'
 // scss
 import '../../../assets/fonts/fonts.scss'
 import './reset.css'
@@ -15,7 +16,7 @@ import NotFoundPage from '../../pages/NotFoundPage/NotFoundPage'
 
 
 interface ComponentProps {
-  history: any
+  history: History
 }
 
 type AllProps = ComponentProps & RouteComponentProps

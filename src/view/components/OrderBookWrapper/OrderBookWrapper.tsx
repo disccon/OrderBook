@@ -14,8 +14,8 @@ const OrderTableWrapper = styled.div`
 `
 
 interface PropsFromState {
-  bids: any,
-  asks: any,
+  bids: Array<Array<string>>,
+  asks: Array<Array<string>>,
 }
 
 type AllProps = PropsFromState

@@ -1,11 +1,11 @@
-export const countBinanceMap = arr => {
+export const parseData = (arr: Array<Array<string>>): Array<Array<string>> => {
   let sum = 0
   return arr.map(item => {
     const price = parseFloat(item[0])
     const amount = parseFloat(item[1])
     const total = price * amount
     sum += total
-    const prettify = (number, fixed) => {
+    const prettify = (number: number, fixed: number) => {
       if (number >= 1000) return number.toFixed(fixed).replace(/،/g, ',')
       return number.toFixed(fixed)
     }
