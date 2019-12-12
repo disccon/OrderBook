@@ -20,15 +20,20 @@ let socketChannel: any
 // saga worker
 export function* fetchSnapshotOrderSaga() {
   try {
+    const { currencies } = yield select(state => state.orderReducer.selects)
+    const { depth } = yield select(state => state.orderReducer.selects)
     const proxyURL = 'https://cors-anywhere.herokuapp.com/'
-    const URL = 'https://www.binance.com/api/v3/depth?symbol=BTCUSDT&limit=1000'
-    const {asks, bids, lastUpdateId} = yield call(fetchSnapshotAxios, {proxyURL, URL})
+    const URL = `https://www.binance.com/api/v3/depth?symbol=${currencies.toUpperCase()}&limit=1000`
+    const { asks, bids, lastUpdateId } = yield call(fetchSnapshotAxios, {proxyURL, URL})
     yield put({
       type: ActionTypes.FETCH_SNAPSHOT_ORDER__SUCCESS,
       payload: {
+        asks: parseData(asks.slice(0, depth)),
+        bids: parseData(bids.slice(0, depth)),
         snapshotAsks: asks,
         snapshotBids: bids,
         lastUpdateId,
+        loading: false,
       },
     })
   } catch (error) {
@@ -46,15 +51,13 @@ export function* updateOrderSaga(action: actionInterface) {
     const { snapshotAsks, snapshotBids, selects } = yield select(state => state.orderReducer)
     const newSnapshotAsks = updateArrAsc(snapshotAsks, newBufferData.a)
     const newSnapshotBids = updateArrDesc(snapshotBids, newBufferData.b)
-    console.log('upadte', newBufferData,'snapshotAsks', snapshotAsks, 'snapshotBids', snapshotBids )
     yield put({
       type: ActionTypes.UPDATE_ORDER__SUCCESS,
       payload: {
         bufferData: [],
-        lastBufferData: newBufferData,
         snapshotAsks: newSnapshotAsks,
         snapshotBids: newSnapshotBids,
-        lastUpdateId: newBufferData.u,
+        lastUpdateId: true,
         asks: parseData(newSnapshotAsks.slice(0, selects.depth)),
         bids: parseData(newSnapshotBids.slice(0, selects.depth)),
         loading: false,
@@ -70,27 +73,20 @@ export function* updateOrderSaga(action: actionInterface) {
 }
 
 
-export function* fetchOrderSaga() {
+export function* websocketOrderSaga() {
   try {
-    // const url = 'wss://stream.binance.com:9443/ws/bnbbtc@depth'
-    // const url = 'wss://stream.binance.com/stream?streams=btcusdt@depth1000ms'
-    const url = 'wss://stream.binance.com:9443/ws/btcusdt@depth'
+    let lastBufferData: any = false
+    const { currencies, interval } = yield select(state => state.orderReducer.selects)
+    const url = `wss://stream.binance.com:9443/ws/${currencies}@depth@${interval}`
     socket = yield call(createWebSocketConnection, {url})
     socketChannel = yield call(createSocketChannel, socket)
-    const newBufferData  = yield take(socketChannel)
-    yield put({
-      type: ActionTypes.FETCH_ORDER__BUFFER,
-      payload: {
-        bufferData: newBufferData,
-      },
-    })
     yield fork(fetchSnapshotOrderSaga)
     while (true) {
-      const {lastUpdateId, bufferData, lastBufferData } = yield select(state => state.orderReducer)
+      const { lastUpdateId, bufferData } = yield select(state => state.orderReducer)
       const newBufferData  = yield take(socketChannel)
       if (!lastUpdateId) {
         yield put({
-          type: ActionTypes.FETCH_ORDER__BUFFER,
+          type: ActionTypes.WEBSOCKET_ORDER_BUFFER,
           payload: {
             bufferData: newBufferData,
           },
@@ -99,16 +95,23 @@ export function* fetchOrderSaga() {
         const nowBufferData = [...bufferData, newBufferData].filter((item: any) => item.u >= lastUpdateId)
         let nowBufferDataFilter = nowBufferData.filter((item: any) => item.U <= lastUpdateId + 1 && item.u >= lastUpdateId + 1)[0]
         if (nowBufferDataFilter) {
+          lastBufferData = {...newBufferData}
           yield fork(updateOrderSaga, { payload: {newBufferData: nowBufferDataFilter}})
+        } else {
+          yield put({
+            type: ActionTypes.WEBSOCKET_ORDER__FAILURE,
+            loading: false,
+            error: 'nowBufferDataFilter not fount',
+          })
         }
-      } else if (newBufferData.U === (lastBufferData.u + 1)) {
+      } else if ((lastBufferData.u + 1) === newBufferData.U) {
+        lastBufferData = {...newBufferData}
         yield fork(updateOrderSaga, {payload: {newBufferData}})
-      } else {
       }
     }
   } catch (error) {
     yield put({
-      type: ActionTypes.FETCH_ORDER__FAILURE,
+      type: ActionTypes.WEBSOCKET_ORDER__FAILURE,
       loading: false,
       error,
     })
@@ -135,10 +138,12 @@ export function* changeOrderBinanceSaga(action: actionInterface) {
       type: ActionTypes.CHANGE_ORDER_BINANCE__LOADING,
       payload: {
         selects,
+        bufferData: [],
+        lastUpdateId: null,
         loading: true,
       },
     })
-    // yield fork(fetchOrderSaga)
+    yield fork(websocketOrderSaga)
   } catch (error) {
     yield put({
       type: ActionTypes.CHANGE_ORDER_BINANCE__FAILURE,
@@ -167,7 +172,7 @@ export function* clearOrderSaga() {
 // saga listener
 export function* orderSaga() {
   yield all([
-    takeLatest(ActionTypes.FETCH_ORDER, fetchOrderSaga),
+    takeLatest(ActionTypes.WEBSOCKET_ORDER, websocketOrderSaga),
     takeLatest(ActionTypes.CHANGE_ORDER_BINANCE, changeOrderBinanceSaga),
     takeLatest(ActionTypes.CLEAR_ORDER, clearOrderSaga),
   ])

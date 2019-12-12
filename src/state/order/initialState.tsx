@@ -12,7 +12,6 @@ export interface OrderState {
   lastUpdateId: number | null
   bufferData: Array<object> | null,
   lastBufferData: Array<string> | null,
-
 }
 
 
