@@ -1,5 +1,5 @@
 import {
-  put, call, all, takeLatest, select, take, cancelled, fork,
+  put, call, all, takeLatest, select, take, cancelled, fork, cancel,
 } from 'redux-saga/effects'
 // types
 import * as ActionTypes from './actions'
@@ -107,6 +107,12 @@ export function* websocketOrderSaga() {
       } else if ((lastBufferData.u + 1) === newBufferData.U) {
         lastBufferData = {...newBufferData}
         yield fork(updateOrderSaga, {payload: {newBufferData}})
+      } else {
+        yield put({
+          type: ActionTypes.WEBSOCKET_ORDER__FAILURE,
+          loading: false,
+          error: 'lastBufferData.u + 1 !== newBufferData.U',
+        })
       }
     }
   } catch (error) {
