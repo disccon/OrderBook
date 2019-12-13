@@ -11,7 +11,6 @@ const NotFound = styled.div`
   }
 `
 
-
 const NotFoundPage = () => (
   <NotFound className='container'>
     <h1 className='h1'>NodFound 404!</h1>

@@ -10,7 +10,7 @@ import { createSocketChannel } from '../../utils/createSocketChannel'
 // Interface
 import { actionInterface } from '../../Interface/actionInterface'
 import { fetchSnapshotAxios } from '../../utils/fetchSnapshotAxios'
-import { updateArrAsc, updateArrDesc } from "../../utils/updateArr";
+import { updateArrAsc, updateArrDesc } from "../../utils/updateArr"
 
 // websocketChannel
 let socket: any
