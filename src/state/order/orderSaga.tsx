@@ -1,5 +1,5 @@
 import {
-  put, call, all, takeLatest, select, take, cancelled, fork, cancel,
+  put, call, all, takeLatest, select, take, cancelled, fork,
 } from 'redux-saga/effects'
 // types
 import * as ActionTypes from './actions'
@@ -47,10 +47,10 @@ export function* fetchSnapshotOrderSaga() {
 
 export function* updateOrderSaga(action: actionInterface) {
   try {
-    const { newBufferData } = action.payload
+    const { socketData } = action.payload
     const { snapshotAsks, snapshotBids, selects } = yield select(state => state.orderReducer)
-    const newSnapshotAsks = updateArrAsc(snapshotAsks, newBufferData.a)
-    const newSnapshotBids = updateArrDesc(snapshotBids, newBufferData.b)
+    const newSnapshotAsks = updateArrAsc(snapshotAsks, socketData.a)
+    const newSnapshotBids = updateArrDesc(snapshotBids, socketData.b)
     yield put({
       type: ActionTypes.UPDATE_ORDER__SUCCESS,
       payload: {
@@ -82,21 +82,21 @@ export function* websocketOrderSaga() {
     socketChannel = yield call(createSocketChannel, socket)
     yield fork(fetchSnapshotOrderSaga)
     while (true) {
+      const socketData  = yield take(socketChannel)
       const { lastUpdateId, bufferData } = yield select(state => state.orderReducer)
-      const newBufferData  = yield take(socketChannel)
       if (!lastUpdateId) {
         yield put({
           type: ActionTypes.WEBSOCKET_ORDER_BUFFER,
           payload: {
-            bufferData: newBufferData,
+            bufferData: socketData,
           },
         })
       } else if (lastUpdateId && !lastBufferData) {
-        const nowBufferData = [...bufferData, newBufferData].filter((item: any) => item.u >= lastUpdateId)
-        let nowBufferDataFilter = nowBufferData.filter((item: any) => item.U <= lastUpdateId + 1 && item.u >= lastUpdateId + 1)[0]
-        if (nowBufferDataFilter) {
-          lastBufferData = {...newBufferData}
-          yield fork(updateOrderSaga, { payload: {newBufferData: nowBufferDataFilter}})
+        const currentBuffer = [...bufferData, socketData].filter((item: any) => item.u >= lastUpdateId)
+        const currentBufferData = currentBuffer.filter((item: any) => item.U <= lastUpdateId + 1 && item.u >= lastUpdateId + 1)[0]
+        if (currentBufferData) {
+          lastBufferData = {...socketData}
+          yield fork(updateOrderSaga, { payload: {socketData: currentBufferData}})
         } else {
           yield put({
             type: ActionTypes.WEBSOCKET_ORDER__FAILURE,
@@ -104,9 +104,9 @@ export function* websocketOrderSaga() {
             error: 'nowBufferDataFilter not fount',
           })
         }
-      } else if ((lastBufferData.u + 1) === newBufferData.U) {
-        lastBufferData = {...newBufferData}
-        yield fork(updateOrderSaga, {payload: {newBufferData}})
+      } else if ((lastBufferData.u + 1) === socketData.U) {
+        lastBufferData = {...socketData}
+        yield fork(updateOrderSaga, {payload: {socketData}})
       } else {
         yield put({
           type: ActionTypes.WEBSOCKET_ORDER__FAILURE,
@@ -132,7 +132,6 @@ export function* websocketOrderSaga() {
 export function* changeOrderBinanceSaga(action: actionInterface) {
   try {
     socketChannel.close()
-    socket.close()
     const selectsState = yield select(state => state.orderReducer.selects)
     let {depth, currencies, interval} = selectsState
     const {input, value} = action.payload

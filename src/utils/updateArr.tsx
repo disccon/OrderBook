@@ -23,7 +23,7 @@ const updateArr = (arr: any, newArr: Array<string>, isDescending = true) => {
 
       if (parseFloat(newArr[n][1]) === 0) {
         if (parseFloat(newArr[n][0]) === parseFloat(resultArr[i][0])) {
-          resultArr.splice(i, 1);
+          resultArr.splice(i, 1)
           break
         } else if (i === resultArr.length - 1) {
           break

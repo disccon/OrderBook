@@ -1,4 +1,3 @@
-import React from 'react'
 import styled from 'styled-components'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
