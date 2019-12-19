@@ -2,7 +2,7 @@ import {
   put, call, all, takeLatest, select, take, cancelled, fork,
 } from 'redux-saga/effects'
 // types
-import * as ActionTypes from './actions'
+import * as ActionTypes from './types'
 // utils
 import { parseData } from '../../utils/parseData'
 import { createWebSocketConnection } from '../../utils/createWebSocketConnection'
@@ -140,7 +140,7 @@ export function* changeOrderBinanceSaga(action: actionInterface) {
     else if (input === 'interval') interval = value
     const selects = {depth, currencies, interval}
     yield put({
-      type: ActionTypes.CHANGE_ORDER_BINANCE__LOADING,
+      type: ActionTypes.CHANGE_BINANCE_ORDER__LOADING,
       payload: {
         selects,
         bufferData: [],
@@ -151,7 +151,7 @@ export function* changeOrderBinanceSaga(action: actionInterface) {
     yield fork(websocketOrderSaga)
   } catch (error) {
     yield put({
-      type: ActionTypes.CHANGE_ORDER_BINANCE__FAILURE,
+      type: ActionTypes.CHANGE_BINANCE_ORDER__FAILURE,
       loading: false,
       error,
     })
@@ -178,7 +178,7 @@ export function* clearOrderSaga() {
 export function* orderSaga() {
   yield all([
     takeLatest(ActionTypes.WEBSOCKET_ORDER, websocketOrderSaga),
-    takeLatest(ActionTypes.CHANGE_ORDER_BINANCE, changeOrderBinanceSaga),
+    takeLatest(ActionTypes.CHANGE_BINANCE_ORDER, changeOrderBinanceSaga),
     takeLatest(ActionTypes.CLEAR_ORDER, clearOrderSaga),
   ])
 }

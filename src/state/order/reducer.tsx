@@ -1,4 +1,4 @@
-import * as ActionTypes from './actions'
+import * as ActionTypes from './types'
 import { initialOrderState, OrderState } from './initialState'
 import { Reducer } from 'redux'
 import { actionInterface } from '../../Interface/actionInterface'
@@ -66,7 +66,7 @@ const reducer: Reducer<OrderState> = (state = initialOrderState, action: actionI
     }
 
 
-    case ActionTypes.CHANGE_ORDER_BINANCE__LOADING: {
+    case ActionTypes.CHANGE_BINANCE_ORDER__LOADING: {
       return {
         ...state,
         selects: action.payload.selects,
@@ -77,7 +77,7 @@ const reducer: Reducer<OrderState> = (state = initialOrderState, action: actionI
       }
     }
 
-    case ActionTypes.CHANGE_ORDER_BINANCE__FAILURE: {
+    case ActionTypes.CHANGE_BINANCE_ORDER__FAILURE: {
       return {
         ...state,
         error: action.error,
